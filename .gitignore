@@ -12,3 +12,4 @@ wheels/
 # Environment / secrets
 .env
 .env.*
+CLAUDE.md
