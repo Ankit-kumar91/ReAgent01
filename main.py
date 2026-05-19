@@ -10,18 +10,29 @@ def main():
         sys.exit(1)
 
     print(f"\nQuery: {query}\n")
-    result = app.invoke(
-        {"query": query, "llm_response": "", "text": "", "smiles": None, "error": None}
-    )
+    result = app.invoke({"query": query})
 
     if result.get("error"):
-        print(f"Error: {result['error']}")
-        print(f"Raw response:\n{result.get('llm_response', '')}")
-    else:
-        print("=== Explanation ===")
-        print(result["text"])
-        print("\n=== SMILES ===")
-        print(result["smiles"])
+        print(f"Warning: {result['error']}")
+
+    print("=== Explanation ===")
+    print(result.get("text", ""))
+
+    reactions = result.get("reactions") or []
+    print(f"\n=== Reactions ({len(reactions)}) ===")
+    for i, rxn in enumerate(reactions, 1):
+        print(f"\n[{i}] {rxn.get('caption') or ''}")
+        print(f"    SMILES:     {rxn.get('smiles')}")
+        if rxn.get("reagents"):
+            print(f"    Reagents:   {', '.join(rxn['reagents'])}")
+        if rxn.get("conditions"):
+            print(f"    Conditions: {', '.join(rxn['conditions'])}")
+
+    follow = result.get("follow_up") or []
+    if follow:
+        print("\n=== Follow-up ===")
+        for q in follow:
+            print(f"  • {q}")
 
 
 if __name__ == "__main__":
